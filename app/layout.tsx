@@ -1,8 +1,13 @@
+
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import ThemeProvider from "@/context/theme";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/sonner";
+import { SessionProvider } from "next-auth/react";
+import { ReactNode } from "react";
+import { auth } from "@/auth";
 
 const inter = localFont({
   src: "./fonts/Inter-VariableFont.ttf",
@@ -22,22 +27,27 @@ export const metadata: Metadata = {
   description: "A better version of StackOverFlow",
 };
 
-export default function Layout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export const instant = false
+
+const Layout = async ({ children }: { children: ReactNode }) => {
+  const session = await auth();
   return (
     <html
       lang="en"
       className={cn("h-full", "antialiased", inter.className, spaceGrotesk.variable, "font-sans", inter.variable)}
       suppressHydrationWarning
     >
-      <body className="flex min-h-full flex-col">
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          {children}
-        </ThemeProvider>
-      </body>
+      <SessionProvider session={session}>
+        <body className="flex min-h-full flex-col">
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+            {children}
+          </ThemeProvider>
+
+          <Toaster />
+        </body>
+      </SessionProvider>
     </html>
   );
-}
+};
+
+export default Layout

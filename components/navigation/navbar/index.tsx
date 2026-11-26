@@ -1,8 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import Theme from "./Theme";
+import { auth, signOut } from "@/auth";
+import { ROUTES } from "@/constants/routes";
+import { Button } from "@/components/ui/button";
 
-const Navbar = () => {
+
+export const instant = false;
+
+const Navbar = async () => {
+
+  const session = await auth();
+
   return (
     <nav className="flex-between background-light900_dark200 shadow-light-300 fixed z-50 w-full gap-5 p-6 sm:px-12 dark:shadow-none">
       <Link href="/" className="flex items-center gap-1">
@@ -14,6 +23,22 @@ const Navbar = () => {
       </Link>
 
       <p>Global Search</p>
+
+      <div className="flex flex-col">
+        {session && (
+          <>
+            <span>{session.user?.name} </span>
+            <form
+              action={async () => {
+                "use server";
+                await signOut({ redirectTo: ROUTES.SIGN_IN });
+              }}
+            >
+              <Button type="submit">Log out</Button>
+            </form>
+          </>
+        )}
+      </div>
 
       <div className="flex-between gap-5">
         <Theme />
